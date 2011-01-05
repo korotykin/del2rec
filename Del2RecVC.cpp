@@ -14,6 +14,17 @@ namespace del2rec {
 		::wprintf(L"\nDeleting one or more files to Recycle Bin"
 			L"\nUsage: Del2Rec [disk:][path]file_name\n");
 	}
+
+	int delete_files(const wchar_t * const files)
+	{
+		SHFILEOPSTRUCT arg_fo;
+		arg_fo.hwnd = 0;
+		arg_fo.wFunc = FO_DELETE;
+		arg_fo.pFrom = files;
+		arg_fo.pTo = 0;
+		arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
+		return ::SHFileOperationW(&arg_fo);
+	}
 }
 
 int wmain(const int argc, const wchar_t* const argv[])
@@ -50,12 +61,6 @@ int wmain(const int argc, const wchar_t* const argv[])
 		++fbp;
 	}
 	*fbp = 0;
-	SHFILEOPSTRUCT arg_fo;
-	arg_fo.hwnd = 0;
-	arg_fo.wFunc = FO_DELETE;
-	arg_fo.pFrom = &files_buf[0];
-	arg_fo.pTo = 0;
-	arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-	return ::SHFileOperationW(&arg_fo);
+	return del2rec::delete_files(&files_buf[0]);
 }
 
