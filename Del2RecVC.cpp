@@ -7,12 +7,16 @@
 #include <shellapi.h>
 #include <stdlib.h>
 #include <vector>
+#include <iostream>
+#include <iomanip>
+
+using std::endl;
 
 namespace del2rec {
 	void print_help()
 	{
-		::wprintf(L"\nDeleting one or more files to Recycle Bin"
-			L"\nUsage: Del2Rec [disk:][path]file_name\n");
+		std::cout << endl << "Deleting one or more files to Recycle Bin" << endl
+			<< "Usage: Del2Rec [disk:][path]file_name" << endl;
 	}
 
 	int delete_files(const wchar_t * const files)
