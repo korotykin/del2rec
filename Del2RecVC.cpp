@@ -5,25 +5,23 @@
 #include <shlobj.h>
 #include <stdio.h>
 #include <shellapi.h>
+#include <stdlib.h>
 
 
-int main(int argc, char* argv[])
+int main(const int argc, const char* const argv[])
 {
 	int res = 0;
-	bool files_only = false;
 	int l = 0;
 	for(int i = 1; i < argc; i++)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/'))
 		{
-			if(tolower(argv[i][1]) == 'f')
-				files_only = true;
 		}
 		else
 		{
-			char absPath[256];
-			if(_fullpath(absPath, argv[i], 255) != 0)
-				l += strlen(absPath);
+			char absPath[MAX_PATH];
+			if(::_fullpath(absPath, argv[i], MAX_PATH) != 0)
+				l += ::strlen(absPath);
 			l++;
 		}
 	}
@@ -34,10 +32,10 @@ int main(int argc, char* argv[])
 		char *_f = ff;
 		for(int i = 1; i < argc; i++)
 		{
-			if(((argv[i][0] != '-') && (argv[i][0] != '/')) || (tolower(argv[i][1]) != 'f'))
+			if((argv[i][0] != '-') && (argv[i][0] != '/'))
 			{
-				char absPath[256];
-				if(_fullpath(absPath, argv[i], 255) != 0)
+				char absPath[MAX_PATH];
+				if(::_fullpath(absPath, argv[i], MAX_PATH) != 0)
 					for(char *p = absPath; *p != 0; p++, _f++)
 						*_f = *p;
 				*_f = 0;
@@ -51,16 +49,13 @@ int main(int argc, char* argv[])
 		arg_fo.pFrom = ff;
 		arg_fo.pTo = 0;
 		arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-		if(files_only)
-			arg_fo.fFlags |= FOF_FILESONLY;
 		res = ::SHFileOperation(&arg_fo);
 		delete[] ff;
 	}
 	else
 	{
-		printf("\nDeleting one or more files to Recycle Bin"
-			"\nUsage: Del2Rec [disk:][path]file_name [-r]"
-			"\n-r or /r - recursing");
+		::printf("\nDeleting one or more files to Recycle Bin"
+			"\nUsage: Del2Rec [disk:][path]file_name");
 	}
 	return res;
 }
