@@ -8,16 +8,18 @@
 #include <stdlib.h>
 #include <vector>
 
-void print_help()
-{
-	::wprintf(L"\nDeleting one or more files to Recycle Bin"
-		L"\nUsage: Del2Rec [disk:][path]file_name\n");
+namespace del2rec {
+	void print_help()
+	{
+		::wprintf(L"\nDeleting one or more files to Recycle Bin"
+			L"\nUsage: Del2Rec [disk:][path]file_name\n");
+	}
 }
 
 int wmain(const int argc, const wchar_t* const argv[])
 {
 	if (argc <= 1) {
-		::print_help();
+		del2rec::print_help();
 		return 0;
 	}
 	int length = 0;
@@ -31,7 +33,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 		++length;
 	}
 	if (length == 0) {
-		::print_help();
+		del2rec::print_help();
 		return 1;
 	}
 	++length;
