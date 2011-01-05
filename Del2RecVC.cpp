@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <shellapi.h>
 #include <stdlib.h>
+#include <vector>
 
 
 int main(const int argc, const char* const argv[])
@@ -24,14 +25,15 @@ int main(const int argc, const char* const argv[])
 	if(l > 0)
 	{
 		++l;
-		char *ff = new char[l];
-		char *_f = ff;
+		//char *ff = new char[l];
+		std::vector<char> files_buf(l);
+		char *_f = &files_buf[0];
 		for(int i = 1; i < argc; i++)
 		{
 			if((argv[i][0] == '-') || (argv[i][0] == '/')) continue;
 			char * absPath = ::_fullpath(NULL, argv[i], 0);
 			if(absPath == 0) continue;
-			for(const char *p = absPath; *p != 0; ++p, ++_f) *_f = *p;
+			for(const char *p = absPath; *p != 0; ++p, ++_f) *_f = *p; // strcpy ?
 			::free(absPath);
 			*_f = 0;
 			++_f;
@@ -40,11 +42,11 @@ int main(const int argc, const char* const argv[])
 		SHFILEOPSTRUCT arg_fo;
 		arg_fo.hwnd = 0;
 		arg_fo.wFunc = FO_DELETE;
-		arg_fo.pFrom = ff;
+		arg_fo.pFrom = &files_buf[0];
 		arg_fo.pTo = 0;
 		arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
 		res = ::SHFileOperation(&arg_fo);
-		delete[] ff;
+		//delete[] ff;
 	}
 	else
 	{
