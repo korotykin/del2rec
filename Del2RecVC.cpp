@@ -1,7 +1,11 @@
 // Del2RecVC.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
+#include <string.h>
+#include <shlobj.h>
+#include <stdio.h>
+#include <shellapi.h>
+
 
 int main(int argc, char* argv[])
 {
