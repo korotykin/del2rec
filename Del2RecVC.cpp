@@ -14,33 +14,27 @@ int main(const int argc, const char* const argv[])
 	int l = 0;
 	for(int i = 1; i < argc; i++)
 	{
-		if((argv[i][0] == '-') || (argv[i][0] == '/'))
-		{
-		}
-		else
-		{
-			char absPath[MAX_PATH];
-			if(::_fullpath(absPath, argv[i], MAX_PATH) != 0)
-				l += ::strlen(absPath);
-			l++;
-		}
+		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue; // skip options
+		char * absPath = ::_fullpath(NULL, argv[i], 0);
+		if(absPath == 0) continue; // error - wrong full path
+		l += ::strlen(absPath);
+		::free(absPath);
+		++l;
 	}
 	if(l > 0)
 	{
-		l++;
+		++l;
 		char *ff = new char[l];
 		char *_f = ff;
 		for(int i = 1; i < argc; i++)
 		{
-			if((argv[i][0] != '-') && (argv[i][0] != '/'))
-			{
-				char absPath[MAX_PATH];
-				if(::_fullpath(absPath, argv[i], MAX_PATH) != 0)
-					for(char *p = absPath; *p != 0; p++, _f++)
-						*_f = *p;
-				*_f = 0;
-				_f++;
-			}
+			if((argv[i][0] == '-') || (argv[i][0] == '/')) continue;
+			char * absPath = ::_fullpath(NULL, argv[i], 0);
+			if(absPath == 0) continue;
+			for(const char *p = absPath; *p != 0; ++p, ++_f) *_f = *p;
+			::free(absPath);
+			*_f = 0;
+			++_f;
 		}
 		*_f = 0;
 		SHFILEOPSTRUCT arg_fo;
