@@ -10,11 +10,11 @@
 
 void print_help()
 {
-	::printf("\nDeleting one or more files to Recycle Bin"
-		"\nUsage: Del2Rec [disk:][path]file_name\n");
+	::wprintf(L"\nDeleting one or more files to Recycle Bin"
+		L"\nUsage: Del2Rec [disk:][path]file_name\n");
 }
 
-int main(const int argc, const char* const argv[])
+int wmain(const int argc, const wchar_t* const argv[])
 {
 	if (argc <= 1) {
 		::print_help();
@@ -24,9 +24,9 @@ int main(const int argc, const char* const argv[])
 	for(int i = 1; i < argc; ++i)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue; // skip options
-		char * absPath = ::_fullpath(NULL, argv[i], 0);
+		wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
 		if(absPath == 0) continue; // error - wrong full path
-		length += ::strlen(absPath);
+		length += ::wcslen(absPath);
 		::free(absPath);
 		++length;
 	}
@@ -35,14 +35,14 @@ int main(const int argc, const char* const argv[])
 		return 1;
 	}
 	++length;
-	std::vector<char> files_buf(length);
-	char *fbp = &files_buf[0];
+	std::vector<wchar_t> files_buf(length);
+	wchar_t *fbp = &files_buf[0];
 	for(int i = 1; i < argc; ++i)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue;
-		char * absPath = ::_fullpath(NULL, argv[i], 0);
+		wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
 		if(absPath == 0) continue;
-		for(const char *p = absPath; *p != 0; ++p, ++fbp) *fbp = *p; // strcpy is not sutable
+		for(const wchar_t *p = absPath; *p != 0; ++p, ++fbp) *fbp = *p; // strcpy is not sutable
 		::free(absPath);
 		*fbp = 0;
 		++fbp;
@@ -54,6 +54,6 @@ int main(const int argc, const char* const argv[])
 	arg_fo.pFrom = &files_buf[0];
 	arg_fo.pTo = 0;
 	arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-	return ::SHFileOperation(&arg_fo);
+	return ::SHFileOperationW(&arg_fo);
 }
 
