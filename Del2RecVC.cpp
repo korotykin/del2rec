@@ -13,10 +13,10 @@
 using std::endl;
 
 namespace del2rec {
-	void print_help()
+	void print_help(std::wostream & output)
 	{
-		std::cout << endl << "Deleting one or more files to Recycle Bin" << endl
-			<< "Usage: Del2Rec [disk:][path]file_name" << endl;
+		output << endl << L"Deleting one or more files to Recycle Bin" << endl
+			<< L"Usage: Del2Rec [disk:][path]file_name" << endl;
 	}
 
 	int delete_files(const wchar_t * const files)
@@ -34,7 +34,7 @@ namespace del2rec {
 int wmain(const int argc, const wchar_t* const argv[])
 {
 	if (argc <= 1) {
-		del2rec::print_help();
+		del2rec::print_help(std::wcout);
 		return 0;
 	}
 	int length = 0;
@@ -48,7 +48,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 		++length;
 	}
 	if (length == 0) {
-		del2rec::print_help();
+		del2rec::print_help(std::wcerr);
 		return 1;
 	}
 	++length;
