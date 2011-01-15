@@ -9,6 +9,7 @@
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include "FileOperationError.h"
 
 using std::endl;
 
@@ -19,7 +20,7 @@ namespace del2rec {
 			<< L"Usage: Del2Rec [disk:][path]file_name" << endl;
 	}
 
-	int delete_files(const wchar_t * const files)
+	void delete_files(const wchar_t * const files) // throw FileOperationError
 	{
 		SHFILEOPSTRUCT arg_fo;
 		arg_fo.hwnd = 0;
@@ -27,7 +28,9 @@ namespace del2rec {
 		arg_fo.pFrom = files;
 		arg_fo.pTo = 0;
 		arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-		return ::SHFileOperationW(&arg_fo);
+		const int res = ::SHFileOperationW(&arg_fo);
+		if (res == 0) return;
+		throw(FileOperationError(res));
 	}
 }
 
@@ -65,6 +68,15 @@ int wmain(const int argc, const wchar_t* const argv[])
 		++fbp;
 	}
 	*fbp = 0;
-	return del2rec::delete_files(&files_buf[0]);
+	try
+	{
+		del2rec::delete_files(&files_buf[0]);
+		return 0;
+	}
+	catch (const del2rec::FileOperationError & error)
+	{
+		std::wcerr << endl << L"error: " << std::hex << L"0x" << error.GetNum() << L" - " << error.GetDescription() << endl;
+		return error.GetNum();
+	}
 }
 
