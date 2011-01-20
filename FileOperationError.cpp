@@ -1,15 +1,16 @@
 #include "FileOperationError.h"
+#include <sstream>
 
 namespace del2rec
 {
 
-FileOperationError::FileOperationError(const int a_errNum): m_errNum(a_errNum)
-{
-}
+	FileOperationError::FileOperationError(const int a_errNum): m_errNum(a_errNum)
+	{
+	}
 
-FileOperationError::~FileOperationError()
-{
-}
+	FileOperationError::~FileOperationError()
+	{
+	}
 
 	int FileOperationError::GetNum() const
 	{
@@ -18,7 +19,9 @@ FileOperationError::~FileOperationError()
 
 	const std::wstring FileOperationError::GetDescription() const
 	{
-		return GetDescription(m_errNum);
+		std::wostringstream ostr;
+		ostr <<"0x" << std::hex << m_errNum << " - " << GetDescription(m_errNum);
+		return ostr.str();
 	}
 
 	const std::wstring FileOperationError::GetDescription(const int a_errNum)

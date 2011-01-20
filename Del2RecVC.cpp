@@ -73,10 +73,10 @@ int wmain(const int argc, const wchar_t* const argv[])
 		del2rec::delete_files(&files_buf[0]);
 		return 0;
 	}
-	catch (const del2rec::FileOperationError & error)
+	catch (const del2rec::D2RError & error)
 	{
-		std::wcerr << endl << L"error: " << std::hex << L"0x" << error.GetNum() << L" - " << error.GetDescription() << endl;
-		return error.GetNum();
+		std::wcerr << endl << L"error: " << error.GetDescription() << endl;
+		return 2;
 	}
 }
 
