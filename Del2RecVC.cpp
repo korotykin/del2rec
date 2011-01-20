@@ -14,6 +14,7 @@
 using std::endl;
 
 namespace del2rec {
+	enum {NoError = 0, OperError = 1, ArgError = 2};
 	void print_help(std::wostream & output)
 	{
 		output << endl << L"Deleting one or more files to Recycle Bin" << endl
@@ -38,7 +39,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 {
 	if (argc <= 1) {
 		del2rec::print_help(std::wcout);
-		return 0;
+		return del2rec::NoError;
 	}
 	int length = 0;
 	for(int i = 1; i < argc; ++i)
@@ -52,7 +53,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 	}
 	if (length == 0) {
 		del2rec::print_help(std::wcerr);
-		return 1;
+		return del2rec::ArgError;
 	}
 	++length;
 	std::vector<wchar_t> files_buf(length);
@@ -71,12 +72,12 @@ int wmain(const int argc, const wchar_t* const argv[])
 	try
 	{
 		del2rec::delete_files(&files_buf[0]);
-		return 0;
+		return del2rec::NoError;
 	}
 	catch (const del2rec::D2RError & error)
 	{
 		std::wcerr << endl << L"error: " << error.GetDescription() << endl;
-		return 2;
+		return del2rec::OperError;
 	}
 }
 
