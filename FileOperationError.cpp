@@ -1,5 +1,7 @@
 #include "FileOperationError.h"
+#include "windows.h"
 #include <sstream>
+#include <string>
 
 namespace del2rec
 {
@@ -98,6 +100,15 @@ namespace del2rec
 			break;
 		case 0x10074:
 			return L"Destination is a root directory and cannot be renamed.";
+			break;
+		default:
+			wchar_t * pstr = NULL;
+			const DWORD res = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, a_errNum, 0, (LPTSTR)&pstr, 0, NULL);
+			if (res > 0) {
+				const std::wstring str(pstr);
+				::LocalFree(pstr);
+				return str;
+			}
 			break;
 		}
 		if (a_errNum & 0x10000) return L"An unspecified error occurred on the destination.";

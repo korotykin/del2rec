@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include "FileOperationError.h"
+#include "ErrorWithMessage.h"
 
 using std::endl;
 
@@ -30,8 +31,8 @@ namespace del2rec {
 		arg_fo.pTo = 0;
 		arg_fo.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
 		const int res = ::SHFileOperationW(&arg_fo);
-		if (res == 0) return;
-		throw(FileOperationError(res));
+		if (res != 0) throw(FileOperationError(res));
+		if (arg_fo.fAnyOperationsAborted == TRUE) throw(ErrorWithMessage(L"Operation aborted by user"));
 	}
 }
 
