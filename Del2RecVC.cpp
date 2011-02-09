@@ -77,7 +77,31 @@ int wmain(const int argc, const wchar_t* const argv[])
 	}
 	catch (const del2rec::D2RError & error)
 	{
-		std::wcerr << endl << L"error: " << error.GetDescription() << endl;
+		//char* locale = setlocale(LC_ALL, "English"); // Get the CRT's current locale.
+		//std::locale lollocale(locale);
+		//setlocale(LC_ALL, locale); // Restore the CRT.
+		//std::wcerr.imbue(lollocale); // Now set the std::wcout to have the locale that we got from the CRT.
+		const UINT cpo = ::GetConsoleOutputCP();
+		const UINT cpi = ::GetConsoleCP();
+		//::SetConsoleOutputCP(65001);
+		//::SetConsoleCP(65001);
+		//::SetConsoleOutputCP(1251);
+		//std::ios_base::sync_with_stdio(false);
+		//const HANDLE hStderr = ::GetStdHandle(STD_ERROR_HANDLE);
+		//std::wstring serr = L"error: " + error.GetDescription();
+		//::WriteFile(hStderr, serr.c_str(), serr.length(), NULL, NULL);
+		std::wstring errDescUTF16(L"error: " + error.GetDescription());
+		std::string strDesc;
+		//const int lengthUTF8 = ::WideCharToMultiByte(CP_UTF8, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
+		int lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
+		strDesc.resize(lengthDesc + 1);
+		lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, &strDesc[0], lengthDesc + 1, NULL, NULL);
+		//strDesc.resize(lengthDesc);
+		//strDesc[lengthDesc] = '\0';
+		std::cerr << endl << strDesc << endl;
+		//std::cerr << endl << "error: " << error.GetDescription().narrow
+		//::SetConsoleOutputCP(cpo);
+		//::SetConsoleCP(cpi);
 		return del2rec::OperError;
 	}
 }
