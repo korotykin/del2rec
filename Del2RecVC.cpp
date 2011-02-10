@@ -16,10 +16,10 @@ using std::endl;
 
 namespace del2rec {
 	enum {NoError = 0, OperError = 1, ArgError = 2};
-	void print_help(std::wostream & output)
+	void print_help(std::ostream & output)
 	{
-		output << endl << L"Deleting one or more files to Recycle Bin" << endl
-			<< L"Usage: Del2Rec [disk:][path]file_name" << endl;
+		output << endl << "Deleting one or more files to Recycle Bin" << endl
+			<< "Usage: Del2Rec [disk:][path]file_name" << endl;
 	}
 
 	void delete_files(const wchar_t * const files) // throw FileOperationError
@@ -39,7 +39,7 @@ namespace del2rec {
 int wmain(const int argc, const wchar_t* const argv[])
 {
 	if (argc <= 1) {
-		del2rec::print_help(std::wcout);
+		del2rec::print_help(std::cout);
 		return del2rec::NoError;
 	}
 	int length = 0;
@@ -53,7 +53,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 		++length;
 	}
 	if (length == 0) {
-		del2rec::print_help(std::wcerr);
+		del2rec::print_help(std::cerr);
 		return del2rec::ArgError;
 	}
 	++length;
