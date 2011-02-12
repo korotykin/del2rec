@@ -13,6 +13,8 @@
 #include "ErrorWithMessage.h"
 
 using std::endl;
+using std::wstring;
+using std::cerr;
 
 namespace del2rec {
 	enum {NoError = 0, OperError = 1, ArgError = 2};
@@ -34,75 +36,78 @@ namespace del2rec {
 		if (res != 0) throw(FileOperationError(res));
 		if (arg_fo.fAnyOperationsAborted == TRUE) throw(ErrorWithMessage(L"Operation aborted by user"));
 	}
+
+	void delete_file(wstring FullFileName)
+	{
+		const size_t sizeName = FullFileName.size();
+		FullFileName.resize(sizeName + 1, 0); // add extra '0' to string
+		delete_files(FullFileName.c_str());
+	}
+	struct DeleteError
+	{
+		wstring m_FileName;
+		wstring m_FullFileName;
+		wstring m_ErrorDescription;
+		DeleteError(const wstring & FileName, const wstring & FullFileName, const wstring & ErrorDescription)
+			: m_FileName(FileName), m_FullFileName(FullFileName), m_ErrorDescription(ErrorDescription)
+		{}
+	};
 }
+
+using namespace del2rec;
 
 int wmain(const int argc, const wchar_t* const argv[])
 {
-	if (argc <= 1) {
-		del2rec::print_help(std::cout);
-		return del2rec::NoError;
+	if (argc <= 1)
+	{
+		print_help(std::cout);
+		return NoError;
 	}
-	int length = 0;
+	bool isDeleted = false;
+	std::vector<DeleteError> Errors;
 	for(int i = 1; i < argc; ++i)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue; // skip options
-		wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
-		if(absPath == 0) continue; // error - wrong full path
-		length += ::wcslen(absPath);
-		::free(absPath);
-		++length;
+		const wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
+		if(absPath == 0)
+		{
+			Errors.push_back(DeleteError(argv[i], L"", L"can't get full path"));
+			continue;
+		}
+		const wstring absFullPath(absPath);
+		::free((void *)absPath);
+		try
+		{
+			delete_file(absFullPath);
+			isDeleted = true;
+		}
+		catch (const D2RError & error)
+		{
+			Errors.push_back(DeleteError(argv[i], absFullPath, error.GetDescription()));
+		}
 	}
-	if (length == 0) {
-		del2rec::print_help(std::cerr);
-		return del2rec::ArgError;
-	}
-	++length;
-	std::vector<wchar_t> files_buf(length);
-	wchar_t *fbp = &files_buf[0];
-	for(int i = 1; i < argc; ++i)
+	if (!isDeleted && Errors.empty())
 	{
-		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue;
-		wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
-		if(absPath == 0) continue;
-		for(const wchar_t *p = absPath; *p != 0; ++p, ++fbp) *fbp = *p; // strcpy is not sutable
-		::free(absPath);
-		*fbp = 0;
-		++fbp;
+		print_help(cerr);
+		return ArgError;
 	}
-	*fbp = 0;
-	try
+	if (!Errors.empty())
 	{
-		del2rec::delete_files(&files_buf[0]);
-		return del2rec::NoError;
-	}
-	catch (const del2rec::D2RError & error)
-	{
-		//char* locale = setlocale(LC_ALL, "English"); // Get the CRT's current locale.
-		//std::locale lollocale(locale);
-		//setlocale(LC_ALL, locale); // Restore the CRT.
-		//std::wcerr.imbue(lollocale); // Now set the std::wcout to have the locale that we got from the CRT.
 		const UINT cpo = ::GetConsoleOutputCP();
-		const UINT cpi = ::GetConsoleCP();
-		//::SetConsoleOutputCP(65001);
-		//::SetConsoleCP(65001);
-		//::SetConsoleOutputCP(1251);
-		//std::ios_base::sync_with_stdio(false);
-		//const HANDLE hStderr = ::GetStdHandle(STD_ERROR_HANDLE);
-		//std::wstring serr = L"error: " + error.GetDescription();
-		//::WriteFile(hStderr, serr.c_str(), serr.length(), NULL, NULL);
-		std::wstring errDescUTF16(L"error: " + error.GetDescription());
-		std::string strDesc;
-		//const int lengthUTF8 = ::WideCharToMultiByte(CP_UTF8, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
-		int lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
-		strDesc.resize(lengthDesc + 1);
-		lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, &strDesc[0], lengthDesc + 1, NULL, NULL);
-		//strDesc.resize(lengthDesc);
-		//strDesc[lengthDesc] = '\0';
-		std::cerr << endl << strDesc << endl;
-		//std::cerr << endl << "error: " << error.GetDescription().narrow
-		//::SetConsoleOutputCP(cpo);
-		//::SetConsoleCP(cpi);
-		return del2rec::OperError;
+		//const UINT cpi = ::GetConsoleCP();
+		cerr << endl;
+		for (std::vector<DeleteError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
+		{
+			const wstring errDescUTF16(L"error: " + i->m_ErrorDescription);
+			std::string strDesc;
+			int lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
+			strDesc.resize(lengthDesc);
+			lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, &strDesc[0], lengthDesc, NULL, NULL);
+			cerr << strDesc;
+		}
+		cerr << endl;
+		return OperError;
 	}
+	return NoError;
 }
 
