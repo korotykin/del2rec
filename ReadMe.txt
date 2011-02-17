@@ -18,14 +18,6 @@ Del2RecVC.cpp
 
 
 /////////////////////////////////////////////////////////////////////////////
-Other standard files:
-
-StdAfx.h, StdAfx.cpp
-    These files are used to build a precompiled header (PCH) file
-    named Del2RecVC.pch and a precompiled types file named StdAfx.obj.
-
-
-/////////////////////////////////////////////////////////////////////////////
 Other notes:
 
 AppWizard uses "TODO:" to indicate parts of the source code you
