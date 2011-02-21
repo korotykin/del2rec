@@ -59,6 +59,16 @@ namespace del2rec {
 		if (curPos < (src.length() - 1)) src.erase(curPos);
 		return src;
 	}
+	void printError(const DeleteError & error)
+	{
+		static CnvWstrToStr cnv(::GetConsoleOutputCP());
+		//static CnvWstrToStr cnv(::GetConsoleCP());
+		std::string strErrorDescription = cnv.ToString(error.m_ErrorDescription);
+		strErrorDescription = RemoveLastEOL(strErrorDescription);
+		cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(error.m_FileName);
+		if (error.m_FileName != error.m_FullFileName) cerr << ", full path: " << cnv.ToString(error.m_FullFileName);
+		cerr << endl;
+	}
 }
 
 using namespace del2rec;
@@ -100,16 +110,10 @@ int wmain(const int argc, const wchar_t* const argv[])
 	}
 	if (!Errors.empty())
 	{
-		CnvWstrToStr cnv(::GetConsoleOutputCP());
-		//CnvWstrToStr cnv(::GetConsoleCP());
 		cerr << endl;
 		for (std::vector<DeleteError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
 		{
-			std::string strErrorDescription = cnv.ToString(i->m_ErrorDescription);
-			strErrorDescription = RemoveLastEOL(strErrorDescription);
-			cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(i->m_FileName);
-			if (i->m_FileName != i->m_FullFileName) cerr << ", full path: " << cnv.ToString(i->m_FullFileName);
-			cerr << endl;
+			printError(*i);
 		}
 		cerr << endl;
 		return OperError;
