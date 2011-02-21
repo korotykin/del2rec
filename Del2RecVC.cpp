@@ -51,6 +51,7 @@ namespace del2rec {
 		DeleteError(const wstring & FileName, const wstring & FullFileName, const wstring & ErrorDescription)
 			: m_FileName(FileName), m_FullFileName(FullFileName), m_ErrorDescription(ErrorDescription)
 		{}
+		void print() const;
 	};
 	std::string RemoveLastEOL(std::string src)
 	{
@@ -59,14 +60,14 @@ namespace del2rec {
 		if (curPos < (src.length() - 1)) src.erase(curPos);
 		return src;
 	}
-	void printError(const DeleteError & error)
+	void DeleteError::print() const
 	{
 		static CnvWstrToStr cnv(::GetConsoleOutputCP());
 		//static CnvWstrToStr cnv(::GetConsoleCP());
-		std::string strErrorDescription = cnv.ToString(error.m_ErrorDescription);
+		std::string strErrorDescription = cnv.ToString(m_ErrorDescription);
 		strErrorDescription = RemoveLastEOL(strErrorDescription);
-		cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(error.m_FileName);
-		if (error.m_FileName != error.m_FullFileName) cerr << ", full path: " << cnv.ToString(error.m_FullFileName);
+		cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(m_FileName);
+		if (m_FileName != m_FullFileName) cerr << ", full path: " << cnv.ToString(m_FullFileName);
 		cerr << endl;
 	}
 }
@@ -113,7 +114,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 		cerr << endl;
 		for (std::vector<DeleteError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
 		{
-			printError(*i);
+			i->print();
 		}
 		cerr << endl;
 		return OperError;
