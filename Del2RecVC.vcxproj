@@ -130,6 +130,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CnvWstrToStr.cpp" />
     <ClCompile Include="D2RError.cpp" />
     <ClCompile Include="Del2RecVC.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -142,6 +143,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CnvWstrToStr.h" />
     <ClInclude Include="D2RError.h" />
     <ClInclude Include="ErrorWithMessage.h" />
     <ClInclude Include="FileOperationError.h" />

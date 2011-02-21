@@ -1,5 +1,4 @@
 // Del2RecVC.cpp : Defines the entry point for the console application.
-//
 
 #include <string.h>
 #include <shlobj.h>
@@ -11,6 +10,7 @@
 #include <iomanip>
 #include "FileOperationError.h"
 #include "ErrorWithMessage.h"
+#include "CnvWstrToStr.h"
 
 using std::endl;
 using std::wstring;
@@ -52,6 +52,13 @@ namespace del2rec {
 			: m_FileName(FileName), m_FullFileName(FullFileName), m_ErrorDescription(ErrorDescription)
 		{}
 	};
+	std::string RemoveLastEOL(std::string src)
+	{
+		size_t curPos = src.length() - 1;
+		while((src[curPos] == '\r') || (src[curPos] == '\n')) --curPos;
+		if (curPos < (src.length() - 1)) src.erase(curPos);
+		return src;
+	}
 }
 
 using namespace del2rec;
@@ -93,17 +100,16 @@ int wmain(const int argc, const wchar_t* const argv[])
 	}
 	if (!Errors.empty())
 	{
-		const UINT cpo = ::GetConsoleOutputCP();
-		//const UINT cpi = ::GetConsoleCP();
+		CnvWstrToStr cnv(::GetConsoleOutputCP());
+		//CnvWstrToStr cnv(::GetConsoleCP());
 		cerr << endl;
 		for (std::vector<DeleteError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
 		{
-			const wstring errDescUTF16(L"error: " + i->m_ErrorDescription);
-			std::string strDesc;
-			int lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, NULL, 0, NULL, NULL);
-			strDesc.resize(lengthDesc);
-			lengthDesc = ::WideCharToMultiByte(cpo, 0, errDescUTF16.c_str(), -1, &strDesc[0], lengthDesc, NULL, NULL);
-			cerr << strDesc;
+			std::string strErrorDescription = cnv.ToString(i->m_ErrorDescription);
+			strErrorDescription = RemoveLastEOL(strErrorDescription);
+			cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(i->m_FileName);
+			if (i->m_FileName != i->m_FullFileName) cerr << ", full path: " << cnv.ToString(i->m_FullFileName);
+			cerr << endl;
 		}
 		cerr << endl;
 		return OperError;
