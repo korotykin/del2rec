@@ -7,10 +7,9 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
-#include <iomanip>
 #include "FileOperationError.h"
 #include "ErrorWithMessage.h"
-#include "CnvWstrToStr.h"
+#include "DescrOfError.h"
 
 using std::endl;
 using std::wstring;
@@ -43,33 +42,6 @@ namespace del2rec {
 		FullFileName.resize(sizeName + 1, 0); // add extra '0' to string
 		delete_files(FullFileName.c_str());
 	}
-	struct DeleteError
-	{
-		wstring m_FileName;
-		wstring m_FullFileName;
-		wstring m_ErrorDescription;
-		DeleteError(const wstring & FileName, const wstring & FullFileName, const wstring & ErrorDescription)
-			: m_FileName(FileName), m_FullFileName(FullFileName), m_ErrorDescription(ErrorDescription)
-		{}
-		void print() const;
-	};
-	std::string RemoveLastEOL(std::string src)
-	{
-		size_t curPos = src.length() - 1;
-		while((src[curPos] == '\r') || (src[curPos] == '\n')) --curPos;
-		if (curPos < (src.length() - 1)) src.erase(curPos);
-		return src;
-	}
-	void DeleteError::print() const
-	{
-		static CnvWstrToStr cnv(::GetConsoleOutputCP());
-		//static CnvWstrToStr cnv(::GetConsoleCP());
-		std::string strErrorDescription = cnv.ToString(m_ErrorDescription);
-		strErrorDescription = RemoveLastEOL(strErrorDescription);
-		cerr << "error: " << strErrorDescription << ", file name: " << cnv.ToString(m_FileName);
-		if (m_FileName != m_FullFileName) cerr << ", full path: " << cnv.ToString(m_FullFileName);
-		cerr << endl;
-	}
 }
 
 using namespace del2rec;
@@ -82,14 +54,14 @@ int wmain(const int argc, const wchar_t* const argv[])
 		return NoError;
 	}
 	bool isDeleted = false;
-	std::vector<DeleteError> Errors;
+	std::vector<DescrOfError> Errors;
 	for(int i = 1; i < argc; ++i)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue; // skip options
 		const wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
 		if(absPath == 0)
 		{
-			Errors.push_back(DeleteError(argv[i], L"", L"can't get full path"));
+			Errors.push_back(DescrOfError(argv[i], L"", L"can't get full path"));
 			continue;
 		}
 		const wstring absFullPath(absPath);
@@ -101,7 +73,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 		}
 		catch (const D2RError & error)
 		{
-			Errors.push_back(DeleteError(argv[i], absFullPath, error.GetDescription()));
+			Errors.push_back(DescrOfError(argv[i], absFullPath, error.GetDescription()));
 		}
 	}
 	if (!isDeleted && Errors.empty())
@@ -112,7 +84,7 @@ int wmain(const int argc, const wchar_t* const argv[])
 	if (!Errors.empty())
 	{
 		cerr << endl;
-		for (std::vector<DeleteError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
+		for (std::vector<DescrOfError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
 		{
 			i->print();
 		}

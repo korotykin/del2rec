@@ -136,8 +136,10 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="DescrOfError.cpp" />
     <ClCompile Include="ErrorWithMessage.cpp" />
     <ClCompile Include="FileOperationError.cpp" />
+    <ClCompile Include="PrintOfErrors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -145,8 +147,10 @@
   <ItemGroup>
     <ClInclude Include="CnvWstrToStr.h" />
     <ClInclude Include="D2RError.h" />
+    <ClInclude Include="DescrOfError.h" />
     <ClInclude Include="ErrorWithMessage.h" />
     <ClInclude Include="FileOperationError.h" />
+    <ClInclude Include="PrintOfErrors.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
