@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <shellapi.h>
 #include <stdlib.h>
-#include <vector>
 #include <iostream>
 #include "FileOperationError.h"
 #include "ErrorWithMessage.h"
 #include "DescrOfError.h"
+#include "PrintOfErrors.h"
 
 using std::endl;
 using std::wstring;
@@ -54,14 +54,14 @@ int wmain(const int argc, const wchar_t* const argv[])
 		return NoError;
 	}
 	bool isDeleted = false;
-	std::vector<DescrOfError> Errors;
+	PrintOfErrors printer;
 	for(int i = 1; i < argc; ++i)
 	{
 		if((argv[i][0] == '-') || (argv[i][0] == '/')) continue; // skip options
 		const wchar_t * const absPath = ::_wfullpath(NULL, argv[i], 0);
 		if(absPath == 0)
 		{
-			Errors.push_back(DescrOfError(argv[i], L"", L"can't get full path"));
+			printer.printError(DescrOfError(argv[i], L"", L"can't get full path"));
 			continue;
 		}
 		const wstring absFullPath(absPath);
@@ -73,22 +73,16 @@ int wmain(const int argc, const wchar_t* const argv[])
 		}
 		catch (const D2RError & error)
 		{
-			Errors.push_back(DescrOfError(argv[i], absFullPath, error.GetDescription()));
+			printer.printError(DescrOfError(argv[i], absFullPath, error.GetDescription()));
 		}
 	}
-	if (!isDeleted && Errors.empty())
+	if (!isDeleted && !printer.GetWasPrinted())
 	{
 		print_help(cerr);
 		return ArgError;
 	}
-	if (!Errors.empty())
+	if (printer.GetWasPrinted())
 	{
-		cerr << endl;
-		for (std::vector<DescrOfError>::const_iterator i = Errors.begin(); i != Errors.end(); ++i)
-		{
-			i->print();
-		}
-		cerr << endl;
 		return OperError;
 	}
 	return NoError;
